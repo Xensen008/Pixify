@@ -21,7 +21,7 @@ const SigninForm = () => {
   const {toast} = useToast(); 
   const {checkAuthUser, isLoading: isUserLoading} = useUserContext();
 
-  const {mutateAsync: signInAccount} = useSignInAccount()
+  const {mutateAsync: signInAccount, isPending: isSigningIn} = useSignInAccount()
   // 1. Define your form.
   const form = useForm<z.infer<typeof SignInValidation>>({
     resolver: zodResolver(SignInValidation),
@@ -84,8 +84,8 @@ const SigninForm = () => {
               </FormItem>
             )}
           />
-          <Button className="shad-button_primary" type="submit" disabled={isUserLoading}>
-            {isUserLoading ? <div className="flex-center gap-2"><Loader/> Loading...</div> : "Sign in"}
+          <Button className="shad-button_primary" type="submit" disabled={isSigningIn}>
+            {isSigningIn ? <div className="flex-center gap-2"><Loader/> Signing in...</div> : "Sign in"}
           </Button>
           <p className="text-small-regular text-light-2 text-center mt-2">
             Don't have an account?
