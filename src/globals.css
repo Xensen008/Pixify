@@ -277,4 +277,8 @@
   .shad-button_ghost {
     @apply flex gap-4 items-center justify-start hover:bg-transparent hover:text-white !important;
   }
+
+  .shad-input_auth {
+    @apply h-12 md:h-14 lg:h-16 text-base md:text-lg;
+  }
 }
