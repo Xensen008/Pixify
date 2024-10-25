@@ -13,14 +13,13 @@ import { useCreatePost } from "@/lib/react-query/queriesAndMutation";
 import { useUserContext } from "@/context/AuthContext";
 import {  useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import Loader from "../shared/Loader";
 
 type PostFormProps = {
     post: Models.Document
 }
 
 const PostForm = ({ post }: PostFormProps) => {
-    const isSigningIn = false
-
     const { mutateAsync: createPost, isPending: isLoadingCreate } = useCreatePost()
 
     const { toast } = useToast();
@@ -112,11 +111,11 @@ const PostForm = ({ post }: PostFormProps) => {
                     )}
                 />
                 <div className="flex gap-4 justify-end items-center">
-                    <Button className="shad-button_dark_4" type="button" disabled={isSigningIn}>
+                    <Button className="shad-button_dark_4" type="button" onClick={() => navigate('/')}>
                         Cancel
                     </Button>
-                    <Button className="shad-button_primary whitespace-nowrap" type="submit" disabled={isSigningIn}>
-                        Post
+                    <Button className="shad-button_primary whitespace-nowrap" type="submit" disabled={isLoadingCreate}>
+                        {isLoadingCreate ? <><Loader/> Posting...</> : 'Post'}
                     </Button>
                 </div>
             </form>
