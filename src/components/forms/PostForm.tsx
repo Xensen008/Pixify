@@ -7,30 +7,52 @@ import { Button } from "../ui/button";
 import { Form, FormControl, FormField, FormItem, FormMessage, FormLabel } from "../ui/form";
 import { Input } from "../ui/input";
 import FileUploader from "../shared/FileUploader";
+import { PostFormValidation } from "@/lib/validation";
+import { Models } from "appwrite";
+import { useCreatePost } from "@/lib/react-query/queriesAndMutation";
+import { useUserContext } from "@/context/AuthContext";
+import {  useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
-const PostFormSchema = z.object({
-    caption: z.string().min(5).max(500),
-    file: z.custom<File[]>(),
-    location: z.string().min(2).max(100),
-    tags: z.string(),
-});
+type PostFormProps = {
+    post: Models.Document
+}
 
-const PostForm = () => {
+const PostForm = ({ post }: PostFormProps) => {
     const isSigningIn = false
-    const form = useForm<z.infer<typeof PostFormSchema>>({
-        resolver: zodResolver(PostFormSchema),
+
+    const { mutateAsync: createPost, isPending: isLoadingCreate } = useCreatePost()
+
+    const { toast } = useToast();
+    const { user } = useUserContext();
+    const navigate = useNavigate();
+
+    const form = useForm<z.infer<typeof PostFormValidation>>({
+        resolver: zodResolver(PostFormValidation),
         defaultValues: {
-            caption: "",
-            file: undefined,
-            location: "",
-            tags: "",
+            caption: post?.caption || "",
+            file: [],
+            location: post?.location || "",
+            tags: post ? post?.tags.join(",") : "",
         }
     })
 
-    const onSubmit = (values: z.infer<typeof PostFormSchema>) => {
-        //do Somthing
-        console.log(values)
+    const onSubmit = async (values: z.infer<typeof PostFormValidation>) => {
+        const newPost = await createPost({
+            ...values,
+            userId: user.id
+        })
+        
+        if(!newPost){
+            toast({
+                title:'Please try again'
+            })
+        }
+        
+        navigate(`/`)   
     }
+
+
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-9 w-full max-w-5xl">
@@ -54,7 +76,10 @@ const PostForm = () => {
                         <FormItem>
                             <FormLabel className="shad-label">Add Image</FormLabel>
                             <FormControl>
-                                <FileUploader />
+                                <FileUploader
+                                    fieldChange={field.onChange}
+                                    mediaUrl={post?.imageUrl || ""}
+                                />
                             </FormControl>
                             <FormMessage className="shad-form_message" />
                         </FormItem>
