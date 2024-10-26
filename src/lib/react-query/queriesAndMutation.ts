@@ -181,9 +181,9 @@ export const useFollowUser = () => {
   return useMutation({
     mutationFn: ({ followerId, followingId }: { followerId: string; followingId: string }) => followUser(followerId, followingId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-      queryClient.invalidateQueries({ queryKey: ['followersCount'] });
-      queryClient.invalidateQueries({ queryKey: ['followingCount'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_USERS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_CURRENT_USER] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_USER_BY_ID] });
     },
   });
 };
@@ -193,13 +193,12 @@ export const useUnfollowUser = () => {
   return useMutation({
     mutationFn: ({ followerId, followingId }: { followerId: string; followingId: string }) => unfollowUser(followerId, followingId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
-      queryClient.invalidateQueries({ queryKey: ['followersCount'] });
-      queryClient.invalidateQueries({ queryKey: ['followingCount'] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_USERS] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_CURRENT_USER] });
+      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.GET_USER_BY_ID] });
     },
   });
 };
-
 export const useGetFollowersCount = (userId: string) => {
   return useQuery({
     queryKey: ['followersCount', userId],

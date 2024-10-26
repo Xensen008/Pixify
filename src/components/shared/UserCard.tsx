@@ -10,9 +10,10 @@ import { checkIsFollowing } from "@/lib/appwrite/api";
 
 type UserCardProps = {
   user: Models.Document;
+  onFollowUpdate?: () => void;
 };
 
-const UserCard = ({ user }: UserCardProps) => {
+const UserCard = ({ user, onFollowUpdate }: UserCardProps) => {
   const { user: currentUser } = useUserContext();
   const [isFollowing, setIsFollowing] = useState(false);
   const { mutate: followUser } = useFollowUser();
@@ -38,6 +39,10 @@ const UserCard = ({ user }: UserCardProps) => {
     } else {
       followUser({ followerId: currentUser.id, followingId: user.$id });
       setIsFollowing(true);
+    }
+
+    if (onFollowUpdate) {
+      onFollowUpdate();
     }
   };
 

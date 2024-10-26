@@ -3,11 +3,14 @@ import PostCard from "@/components/shared/PostCard";
 import UserCard from "@/components/shared/UserCard";
 import { useGetRecentPosts, useGetUsers } from "@/lib/react-query/queriesAndMutation";
 import { Models } from "appwrite";
+import { useQueryClient } from "@tanstack/react-query";
 
 // import { useToast } from "@/components/ui/use-toast";
 
 
 const Home = () => {
+  const queryClient = useQueryClient();
+
   // const { toast } = useToast();
 
   const {
@@ -20,6 +23,10 @@ const Home = () => {
     isLoading: isCreatorsLoading,
     isError: isErrorCreators,
   } = useGetUsers(10);
+
+  const handleFollowUpdate = () => {
+    queryClient.invalidateQueries({ queryKey: ["getUsers"] });
+  };
 
   if (isErrorPosts || isErrorCreators) {
     return (
@@ -61,7 +68,7 @@ const Home = () => {
           <ul className="grid 2xl:grid-cols-2 gap-6">
             {topCreators?.documents.map((creator) => (
               <li key={creator?.$id}>
-                <UserCard user={creator} />
+                <UserCard user={creator} onFollowUpdate={handleFollowUpdate} />
               </li>
             ))}
           </ul>
