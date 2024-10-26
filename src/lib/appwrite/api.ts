@@ -407,6 +407,126 @@ export async function deleteSavedPost(savedRecordId: string) {
   }
 }
 
+// Follow a user
+export async function followUser(followerId: string, followingId: string) {
+  try {
+    // Check if the follow relationship already exists
+    const existingFollow = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.followersCollectionId,
+      [
+        Query.equal('follower', followerId),
+        Query.equal('following', followingId)
+      ]
+    );
+
+    if (existingFollow.total > 0) {
+      // Already following, do nothing
+      return null;
+    }
+
+    const newFollow = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.followersCollectionId,
+      ID.unique(),
+      {
+        follower: followerId,
+        following: followingId,
+      }
+    );
+
+    return newFollow;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+export async function unfollowUser(followerId: string, followingId: string) {
+  try {
+    const existingFollow = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.followersCollectionId,
+      [
+        Query.equal('follower', followerId),
+        Query.equal('following', followingId)
+      ]
+    );
+
+    if (existingFollow.total === 0) {
+      // Not following, do nothing
+      return null;
+    }
+
+    const deleteFollow = await databases.deleteDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.followersCollectionId,
+      existingFollow.documents[0].$id
+    );
+
+    return deleteFollow;
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+export async function checkIsFollowing(followerId: string, followingId: string) {
+  try {
+    const existingFollow = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.followersCollectionId,
+      [
+        Query.equal('follower', followerId),
+        Query.equal('following', followingId)
+      ]
+    );
+
+    return existingFollow.total > 0;
+  } catch (error) {
+    console.log(error);
+    return false;
+  }
+}
+
+// Get followers count
+export async function getFollowersCount(userId: string) {
+  try {
+    const followers = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.followersCollectionId,
+      [Query.equal('following', userId)]
+    );
+
+    return followers.total;
+  } catch (error) {
+    console.log(error);
+    return 0;
+  }
+}
+
+
+
+
+// Get following count
+export async function getFollowingCount(userId: string) {
+  try {
+    const following = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.followersCollectionId,
+      [Query.equal('follower', userId)]
+    );
+
+    return following.total;
+  } catch (error) {
+    console.log(error);
+    return 0;
+  }
+}
+
+
+
+
 // ============================== GET USER'S POST
 export async function getUserPosts(userId?: string) {
   if (!userId) return;

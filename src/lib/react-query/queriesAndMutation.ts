@@ -5,6 +5,8 @@ import {
   useInfiniteQuery,
 } from "@tanstack/react-query";
 
+import { followUser, unfollowUser, getFollowersCount, getFollowingCount } from '@/lib/appwrite/api';
+
 import { QUERY_KEYS } from "@/lib/react-query/queryKeys";
 import {
   createUserAccount,
@@ -167,6 +169,50 @@ export const useLikePost = () => {
         queryKey: [QUERY_KEYS.GET_CURRENT_USER],
       });
     },
+  });
+};
+
+
+
+
+// Add these new queries and mutations
+export const useFollowUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ followerId, followingId }: { followerId: string; followingId: string }) => followUser(followerId, followingId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['followersCount'] });
+      queryClient.invalidateQueries({ queryKey: ['followingCount'] });
+    },
+  });
+};
+
+export const useUnfollowUser = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ followerId, followingId }: { followerId: string; followingId: string }) => unfollowUser(followerId, followingId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+      queryClient.invalidateQueries({ queryKey: ['followersCount'] });
+      queryClient.invalidateQueries({ queryKey: ['followingCount'] });
+    },
+  });
+};
+
+export const useGetFollowersCount = (userId: string) => {
+  return useQuery({
+    queryKey: ['followersCount', userId],
+    queryFn: () => getFollowersCount(userId),
+    enabled: !!userId,
+  });
+};
+
+export const useGetFollowingCount = (userId: string) => {
+  return useQuery({
+    queryKey: ['followingCount', userId],
+    queryFn: () => getFollowingCount(userId),
+    enabled: !!userId,
   });
 };
 

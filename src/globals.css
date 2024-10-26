@@ -114,7 +114,7 @@
 
   /* All Users */
   .user-container {
-    @apply max-w-5xl flex flex-col items-start w-full gap-6 md:gap-9;
+    @apply max-w-7xl flex flex-col items-start w-full gap-6 md:gap-9;
   }
 
   .user-grid {
@@ -232,9 +232,8 @@
   }
 
   .post-card_img {
-    @apply h-64 xs:h-[400px] lg:h-[450px] w-full rounded-[24px] object-cover mb-5;
+    @apply h-64 xs:h-[400px] lg:h-[350px] w-full rounded-[24px] object-cover mb-5;
   }
-
   /* Topbar */
   .topbar {
     @apply sticky top-0 z-50 md:hidden bg-dark-2 w-full;
