@@ -58,6 +58,9 @@ const UserCard = ({ user }: UserCardProps) => {
         <p className="small-regular text-light-3 text-center line-clamp-1">
           @{user.username}
         </p>
+        <p className="small-regular text-light-3 text-center line-clamp-1">
+          {user.followersCount} followers
+        </p>
       </div>
 
       {!isCurrentUser && (

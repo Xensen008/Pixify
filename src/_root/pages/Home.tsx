@@ -16,8 +16,8 @@ const Home = () => {
     isError: isErrorPosts,
   } = useGetRecentPosts();
   const {
-    data: creators,
-    isLoading: isUserLoading,
+    data: topCreators,
+    isLoading: isCreatorsLoading,
     isError: isErrorCreators,
   } = useGetUsers(10);
 
@@ -55,11 +55,11 @@ const Home = () => {
 
       <div className="home-creators">
         <h3 className="h3-bold text-light-1">Top Creators</h3>
-        {isUserLoading && !creators ? (
+        {isCreatorsLoading && !topCreators ? (
           <Loader />
         ) : (
           <ul className="grid 2xl:grid-cols-2 gap-6">
-            {creators?.documents.map((creator) => (
+            {topCreators?.documents.map((creator) => (
               <li key={creator?.$id}>
                 <UserCard user={creator} />
               </li>

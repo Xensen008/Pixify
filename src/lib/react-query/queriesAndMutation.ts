@@ -266,7 +266,7 @@ export const useGetCurrentUser = () => {
 
 export const useGetUsers = (limit?: number) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.GET_USERS],
+    queryKey: [QUERY_KEYS.GET_USERS, limit],
     queryFn: () => getUsers(limit),
   });
 };

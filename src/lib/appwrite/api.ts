@@ -569,22 +569,25 @@ export async function getRecentPosts() {
 
 // ============================== GET USERS
 export async function getUsers(limit?: number) {
-  const queries: any[] = [Query.orderDesc("$createdAt")];
-
-  if (limit) {
-    queries.push(Query.limit(limit));
-  }
-
   try {
     const users = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
-      queries
+      [Query.orderDesc("$createdAt"), Query.limit(limit || 100)]
     );
 
     if (!users) throw Error;
 
-    return users;
+    const usersWithFollowers = await Promise.all(
+      users.documents.map(async (user) => {
+        const followersCount = await getFollowersCount(user.$id);
+        return { ...user, followersCount };
+      })
+    );
+
+    const sortedUsers = usersWithFollowers.sort((a, b) => b.followersCount - a.followersCount);
+
+    return { ...users, documents: sortedUsers };
   } catch (error) {
     console.log(error);
   }
@@ -664,3 +667,4 @@ export async function updateUser(user: IUpdateUser) {
     console.log(error);
   }
 }
+
