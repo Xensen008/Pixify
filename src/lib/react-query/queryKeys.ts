@@ -23,4 +23,8 @@ export enum QUERY_KEYS {
 
     // COMMENT KEYS
     GET_POST_COMMENTS = "getPostComments",
+
+    // USER SEARCH KEYS
+    GET_INFINITE_USERS = "getInfiniteUsers",
+    SEARCH_USERS = "searchUsers",
   }

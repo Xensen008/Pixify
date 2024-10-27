@@ -5,7 +5,7 @@ import {
   useInfiniteQuery,
 } from "@tanstack/react-query";
 
-import { followUser, unfollowUser, getFollowersCount, getFollowingCount, createComment, getComments } from '@/lib/appwrite/api';
+import { followUser, unfollowUser, getFollowersCount, getFollowingCount, createComment, getComments, getInfiniteUsers, searchUsers } from '@/lib/appwrite/api';
 
 import { QUERY_KEYS } from "@/lib/react-query/queryKeys";
 import {
@@ -311,5 +311,36 @@ export const useGetComments = (postId: string) => {
     queryKey: [QUERY_KEYS.GET_POST_COMMENTS, postId],
     queryFn: () => getComments(postId),
     enabled: !!postId,
+  });
+};
+
+// ============================================================
+// USER SEARCH QUERIES  
+// ============================================================
+
+export const useGetInfiniteUsers = () => {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.GET_INFINITE_USERS],
+    queryFn: ({ pageParam }: { pageParam: string | null }) => getInfiniteUsers({ pageParam }),
+    getNextPageParam: (lastPage) => {
+      // If there's no data, there are no more pages.
+      if (!lastPage || lastPage.documents.length === 0) {
+        return null;
+      }
+
+      // Use the $id of the last document as the cursor.
+      const lastId = lastPage.documents[lastPage.documents.length - 1].$id;
+      return lastId;
+    },
+    initialPageParam: null,
+  });
+};
+
+export const useSearchUsers = (searchTerm: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.SEARCH_USERS, searchTerm],
+    queryFn: () => searchUsers(searchTerm),
+    enabled: !!searchTerm,
+    select: (data) => data ?? { documents: [] }, // Ensure we always return an object with a documents array
   });
 };

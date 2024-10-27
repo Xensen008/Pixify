@@ -706,3 +706,41 @@ export async function updateUser(user: IUpdateUser) {
   }
 }
 
+// Search users
+export async function searchUsers(searchTerm: string) {
+  try {
+    const users = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.search("name", searchTerm)]
+    );
+
+    return users;
+  } catch (error) {
+    console.error("Error searching users:", error);
+    return { documents: [] };
+  }
+}
+
+// Get users with pagination
+export async function getInfiniteUsers({ pageParam }: { pageParam: string | null }) {
+  const queries: any[] = [Query.orderDesc("$createdAt"), Query.limit(10)];
+
+  if (pageParam) {
+    queries.push(Query.cursorAfter(pageParam));
+  }
+
+  try {
+    const users = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      queries
+    );
+
+    if (!users) throw Error;
+
+    return users;
+  } catch (error) {
+    console.log(error);
+  }
+}
