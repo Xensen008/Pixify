@@ -1,50 +1,152 @@
-# React + TypeScript + Vite
+# Pixify  
+**Unleash Your Creative Vibes**
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+### Overview  
+Pixify is a scalable, full-stack social media application designed to enhance user interaction and creativity. Built with modern web technologies, this project showcases robust frontend integration with Appwrite, providing users with a seamless and engaging experience. With a focus on a sleek UI and responsive design, Pixify is set to grow and evolve.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Screenshots  
 
-## Expanding the ESLint configuration
+<div style="display: flex; justify-content: space-between;">
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+  <div style="text-align: center;">
+    <img src="./public/assets/pixify%20web.jpg" alt="Pixify Screenshot" width="290px">
+  </div>
 
-- Configure the top-level `parserOptions` property like this:
+  <div style="text-align: center;">
+    <img src="./public/assets/pixify%20Phone.jpg" alt="Pixify Screenshot" height="150px">
+  </div>
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+</div>
+
+
+
+
+## Tech Stack  
+
+### Frontend
+- **React**: Library for building user interfaces.
+- **Redux**: State management for predictable data flow.
+- **Vite**: Fast build tool for modern web projects.
+
+### UI & Styling
+- **shadcn**: Styled components for creating a cohesive look.
+- **Tailwind CSS**: Utility-first CSS framework for rapid UI development.
+
+
+### Dependencies
+Here are the key packages used in the project:
+```json
+{
+  "@radix-ui/react-toast": "^1.2.2",
+  "@tanstack/react-query": "^5.59.16",
+  "appwrite": "^16.0.2",
+  "react": "^18.3.1",
+  "react-dom": "^18.3.1",
+  "react-dropzone": "^14.2.10",
+  "react-hook-form": "^7.53.1",
+  "react-intersection-observer": "^9.13.1",
+  "react-router-dom": "^6.27.0",
+  "tailwind-merge": "^2.5.4",
+  "use-debounce": "^10.0.4",
+  "zod": "^3.23.8"
+}
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+---
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## Environment Variables  
+To run this project, you will need to create a `.env` file in the root of your frontend directory with the following variables:
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```plaintext
+VITE_APPWRITE_PROJECT_ID=""
+VITE_APPWRITE_URL=""
+VITE_APPWRITE_STORAGE_ID=""
+VITE_APPWRITE_DATABASE_ID=""
+VITE_APPWRITE_USER_COLLECTION_ID=""
+VITE_APPWRITE_POST_COLLECTION_ID=""
+VITE_APPWRITE_SAVES_COLLECTION_ID=""
+VITE_APPWRITE_FOLLOWERS_COLLECTION_ID="
+VITE_APPWRITE_COMMENTS_COLLECTION_ID=""
 ```
+
+---
+
+## Key Features  
+- **User Authentication**: Secure login and registration managed by Appwrite.
+- **Real-time Interactions**: Instant updates for a dynamic user experience.
+- **State Management**: Redux for managing user states and application data seamlessly.
+- **Responsive Design**: Mobile-first approach ensuring a polished look across devices.
+- **Smooth Animations**: Implemented transitions for delightful transitions.
+
+---
+
+## Future Implementations  
+In Pixify, I plan to implement the following features:
+1. **Follow and Following List**: Easily view and manage followers with a click.
+2. **Chat and Messaging Page**: Enable direct communication between users.
+3. **Stories or Time-Oriented Posts**: Introduce temporary posts for users to share updates.
+4. **More Operations in Comments**: Add functionalities like deleting and copying comments.
+5. **Collection for Saved Posts**: Allow users to save and organize their favorite posts.
+
+---
+
+## Project Structure  
+The project is organized as follows:
+- **Frontend**: A React-based user interface, utilizing Redux for state management and styled using shadcn and Tailwind CSS.
+
+---
+
+## Setup Instructions  
+
+### Prerequisites  
+- **Node.js** (v14 or higher)
+- **npm** or **yarn** (for managing dependencies)
+- **Appwrite**: Ensure you have an Appwrite server running.
+
+### Frontend Setup  
+1. Navigate to the frontend directory:
+   ```bash
+   cd Frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+---
+
+## Scripts  
+
+### Frontend
+- `dev`: Starts the Vite development server
+
+---
+
+## Contributing
+
+We welcome contributions to improve WonderWords! Please follow these steps to contribute:
+
+1. Fork the repository.
+2. Create a new branch: `git checkout -b feature/your-feature-name`.
+3. Make your changes and commit them: `git commit -m 'Add some feature'`.
+4. Push to the branch: `git push origin feature/your-feature-name`.
+5. Submit a pull request.
+
+
+## Authors
+
+- [@Arnabjk008](https://www.github.com/xensen008)
+- [Bio Links](https://xensen008.bio.link)
+
+
+## Acknowledgments
+
+A big thank you to the developers of ReactJS, Tailwind CSS, NodeJS, Express, and Appwrite for their incredible tools.
