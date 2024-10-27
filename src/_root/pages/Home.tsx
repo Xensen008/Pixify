@@ -1,32 +1,33 @@
+import { useEffect } from "react";
 import Loader from "@/components/shared/Loader";
 import PostCard from "@/components/shared/PostCard";
 import UserCard from "@/components/shared/UserCard";
-import { useGetRecentPosts, useGetUsers } from "@/lib/react-query/queriesAndMutation";
+import { useGetPosts, useGetUsers } from "@/lib/react-query/queriesAndMutation";
 import { Models } from "appwrite";
-import { useQueryClient } from "@tanstack/react-query";
-
-// import { useToast } from "@/components/ui/use-toast";
-
+import { useInView } from "react-intersection-observer";
 
 const Home = () => {
-  const queryClient = useQueryClient();
-
-  // const { toast } = useToast();
+  const { ref, inView } = useInView();
 
   const {
     data: posts,
     isLoading: isPostLoading,
     isError: isErrorPosts,
-  } = useGetRecentPosts();
+    fetchNextPage,
+    hasNextPage,
+  } = useGetPosts();
+
   const {
     data: topCreators,
     isLoading: isCreatorsLoading,
     isError: isErrorCreators,
   } = useGetUsers(10);
 
-  const handleFollowUpdate = () => {
-    queryClient.invalidateQueries({ queryKey: ["getUsers"] });
-  };
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, fetchNextPage, hasNextPage]);
 
   if (isErrorPosts || isErrorCreators) {
     return (
@@ -41,6 +42,8 @@ const Home = () => {
     );
   }
 
+  const allPosts = posts?.pages.flatMap((page: any) => page?.documents) || [];
+
   return (
     <div className="flex flex-1">
       <div className="home-container">
@@ -50,7 +53,7 @@ const Home = () => {
             <Loader />
           ) : (
             <ul className="flex flex-col flex-1 gap-9 w-full ">
-              {posts?.documents.map((post: Models.Document) => (
+              {allPosts.map((post: Models.Document) => (
                 <li key={post.$id} className="flex justify-center w-full">
                   <PostCard post={post} />
                 </li>
@@ -58,6 +61,12 @@ const Home = () => {
             </ul>
           )}
         </div>
+
+        {hasNextPage && (
+          <div ref={ref} className="mt-10 flex justify-center w-full">
+            <Loader />
+          </div>
+        )}
       </div>
 
       <div className="home-creators">
@@ -68,7 +77,7 @@ const Home = () => {
           <ul className="grid 2xl:grid-cols-2 gap-6">
             {topCreators?.documents.map((creator) => (
               <li key={creator?.$id}>
-                <UserCard user={creator} onFollowUpdate={handleFollowUpdate} />
+                <UserCard user={creator} />
               </li>
             ))}
           </ul>

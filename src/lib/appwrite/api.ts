@@ -225,8 +225,8 @@ export async function searchPosts(searchTerm: string) {
 }
 
 export async function getInfinitePosts({ pageParam }: { pageParam: string | null }) {
-  const queries: any[] = [Query.orderDesc("$updatedAt"), Query.limit(9)];
-
+  const queries: any[] = [Query.orderDesc('$createdAt'), Query.limit(10)];
+  
   if (pageParam) {
     queries.push(Query.cursorAfter(pageParam));
   }
@@ -238,11 +238,10 @@ export async function getInfinitePosts({ pageParam }: { pageParam: string | null
       queries
     );
 
-    if (!posts) throw Error;
-
     return posts;
   } catch (error) {
-    console.log(error);
+    console.error("Error fetching posts:", error);
+    return { documents: [] };
   }
 }
 

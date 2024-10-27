@@ -63,12 +63,10 @@ export const useGetPosts = () => {
     queryKey: [QUERY_KEYS.GET_INFINITE_POSTS],
     queryFn: ({ pageParam }: { pageParam: string | null }) => getInfinitePosts({ pageParam }),
     getNextPageParam: (lastPage) => {
-      // If there's no data, there are no more pages.
-      if (!lastPage || lastPage.documents.length === 0) {
+      if (lastPage && lastPage.documents.length === 0) {
         return null;
       }
 
-      // Use the $id of the last document as the cursor.
       const lastId = lastPage.documents[lastPage.documents.length - 1].$id;
       return lastId;
     },
@@ -344,3 +342,4 @@ export const useSearchUsers = (searchTerm: string) => {
     select: (data) => data ?? { documents: [] }, // Ensure we always return an object with a documents array
   });
 };
+
