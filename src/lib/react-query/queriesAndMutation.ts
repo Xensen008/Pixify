@@ -302,25 +302,6 @@ export const useCreateComment = () => {
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_POST_COMMENTS, newComment?.post],
       });
-      
-      // Update the post details to reflect the new comment count
-      queryClient.invalidateQueries({
-        queryKey: [QUERY_KEYS.GET_POST_BY_ID, newComment?.post],
-      });
-
-      // Optionally, update the cache directly
-      queryClient.setQueryData(
-        [QUERY_KEYS.GET_POST_COMMENTS, newComment?.post],
-        (oldData: any) => {
-          if (oldData && oldData.documents) {
-            return {
-              ...oldData,
-              documents: [newComment, ...oldData.documents],
-            };
-          }
-          return oldData;
-        }
-      );
     },
   });
 };
