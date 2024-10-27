@@ -20,4 +20,7 @@ export enum QUERY_KEYS {
 
     // TOP CREATORS KEYS
     GET_TOP_CREATORS = "getTopCreators",
+
+    // COMMENT KEYS
+    GET_POST_COMMENTS = "getPostComments",
   }

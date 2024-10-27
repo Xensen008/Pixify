@@ -610,6 +610,44 @@ export async function getUserById(userId: string) {
   }
 }
 
+// Create a new comment
+export async function createComment(postId: string, userId: string, text: string) {
+  try {
+    const newComment = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.commentsCollectionId,
+      ID.unique(),
+      {
+        user: userId,
+        post: postId,
+        text: text
+      }
+    );
+
+    return newComment;
+  } catch (error) {
+    console.error("Error creating comment:", error);
+  }
+}
+
+// Get comments for a post
+export async function getComments(postId: string) {
+  try {
+    const comments = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.commentsCollectionId,
+      [
+        Query.equal("post", postId),
+        Query.orderDesc("$createdAt"),
+        Query.limit(100)
+      ]
+    );
+
+    return comments;
+  } catch (error) {
+    console.error("Error fetching comments:", error);
+  }
+}
 // ============================== UPDATE USER
 export async function updateUser(user: IUpdateUser) {
   const hasFileToUpdate = user.file.length > 0;

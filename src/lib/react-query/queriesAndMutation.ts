@@ -5,7 +5,7 @@ import {
   useInfiniteQuery,
 } from "@tanstack/react-query";
 
-import { followUser, unfollowUser, getFollowersCount, getFollowingCount } from '@/lib/appwrite/api';
+import { followUser, unfollowUser, getFollowersCount, getFollowingCount, createComment, getComments } from '@/lib/appwrite/api';
 
 import { QUERY_KEYS } from "@/lib/react-query/queryKeys";
 import {
@@ -290,5 +290,26 @@ export const useUpdateUser = () => {
         queryKey: [QUERY_KEYS.GET_USER_BY_ID, data?.$id],
       });
     },
+  });
+};
+
+export const useCreateComment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ postId, userId, text }: { postId: string; userId: string; text: string }) =>
+      createComment(postId, userId, text),
+    onSuccess: (newComment) => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_POST_COMMENTS, newComment?.post],
+      });
+    },
+  });
+};
+
+export const useGetComments = (postId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_POST_COMMENTS, postId],
+    queryFn: () => getComments(postId),
+    enabled: !!postId,
   });
 };
