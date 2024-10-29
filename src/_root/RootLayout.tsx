@@ -26,16 +26,17 @@ const RootLayout = () => {
     checkVerification();
   }, [user?.id]);
 
+  if (!isVerified) {
+    return <VerificationBanner />;
+  }
+
   return (
     <div className="w-full md:flex">
       <Topbar />
       <LeftSidebar />
-
       <section className="flex flex-1 h-full">
-        {!isVerified && <VerificationBanner />}
         <Outlet />
       </section>
-
       <Bottombar />
     </div>
   );

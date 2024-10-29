@@ -1,43 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { useUserContext } from '@/context/AuthContext';
 import { account } from '@/lib/appwrite/config';
 import { useToast } from '@/hooks/use-toast';
+import Loader from './Loader';
 
 const VerificationBanner = () => {
   const navigate = useNavigate();
   const { user } = useUserContext();
   const { toast } = useToast();
-  const [showBanner, setShowBanner] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  useEffect(() => {
-    const checkVerification = async () => {
-      try {
-        const currentAccount = await account.get();
-        setShowBanner(!currentAccount.emailVerification);
-      } catch (error) {
-        console.error("Error checking verification:", error);
-      }
-    };
-
-    // Check verification status when component mounts and when user changes
-    if (user?.email) {
-      checkVerification();
-    }
-
-    // Check verification status every 30 seconds
-    const interval = setInterval(() => {
-      if (user?.email) {
-        checkVerification();
-      }
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, [user?.email]);
-
-  if (!showBanner) return null;
 
   const handleVerifyClick = async () => {
     setIsLoading(true);
@@ -56,7 +29,6 @@ const VerificationBanner = () => {
       });
     } catch (error: any) {
       if (error.code === 409) {
-        setShowBanner(false);
         toast({
           title: "Already Verified",
           description: "Your email is already verified.",
@@ -74,31 +46,30 @@ const VerificationBanner = () => {
   };
 
   return (
-    <div className="fixed top-0 left-0 w-full bg-dark-4 py-2 sm:py-4 px-4 sm:px-6 flex flex-col sm:flex-row justify-between items-center gap-2 sm:gap-4 z-50 border-b border-dark-3">
-      <div className="flex items-center gap-2 sm:gap-3 text-center sm:text-left">
-        <img 
-          src="/assets/icons/chat.svg" 
-          alt="warning" 
-          className="w-5 h-5 sm:w-6 sm:h-6 hidden sm:block"
-        />
-        <p className="text-light-2 text-xs sm:text-base">
-          <span className="font-bold">{user.email}</span> is not verified. 
-          Please verify your email to access all features.
-        </p>
+    <div className="flex-center flex-col h-screen w-full bg-dark-1 px-5">
+      <div className="max-w-md w-full bg-dark-2 rounded-2xl p-8 flex flex-col items-center gap-6">
+        <div className="text-center">
+          <h1 className="h3-bold md:h2-bold mb-2">Verify Your Email</h1>
+          <p className="text-light-2 small-medium md:base-regular">
+            We sent a verification email to<br />
+            <span className="font-bold text-light-1">{user.email}</span>
+          </p>
+        </div>
+
+        <Button
+          onClick={handleVerifyClick}
+          disabled={isLoading}
+          className="shad-button_primary w-full"
+        >
+          {isLoading ? (
+            <div className="flex-center gap-2">
+              <Loader /> Sending...
+            </div>
+          ) : (
+            "Resend Verification Email"
+          )}
+        </Button>
       </div>
-      <Button
-        onClick={handleVerifyClick}
-        disabled={isLoading}
-        className="shad-button_primary flex items-center gap-2 w-full sm:w-auto"
-      >
-        {isLoading ? (
-          <>Loading...</>
-        ) : (
-          <>
-            Verify Now
-          </>
-        )}
-      </Button>
     </div>
   );
 };
