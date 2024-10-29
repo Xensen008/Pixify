@@ -29,7 +29,7 @@ const VerifyEmail = () => {
       try {
         await account.updateVerification(userId, secret);
         
-        // Force refresh the account status
+    
         const currentAccount = await account.get();
         
         if (currentAccount.emailVerification) {
