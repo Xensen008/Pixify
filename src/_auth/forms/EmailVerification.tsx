@@ -51,11 +51,6 @@ const EmailVerification = () => {
 
   return (
     <div className="flex-center flex-col gap-5 p-8 max-w-md w-full bg-dark-2 rounded-xl">
-      <img 
-        src="/assets/icons/email-verify.svg" 
-        alt="email" 
-        className="w-24 h-24"
-      />
       <h2 className="h3-bold md:h2-bold text-center">Verify your email</h2>
       <p className="text-light-2 small-medium md:base-regular text-center">
         We sent a verification link to<br />

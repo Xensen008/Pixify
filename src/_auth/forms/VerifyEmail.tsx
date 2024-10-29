@@ -58,11 +58,6 @@ const VerifyEmail = () => {
 
   return (
     <div className="flex-center flex-col gap-4 p-8 max-w-md w-full bg-dark-2 rounded-xl">
-      <img 
-        src="/assets/icons/email-verify.svg" 
-        alt="email" 
-        className="w-24 h-24"
-      />
       <h2 className="h3-bold md:h2-bold text-center">Verifying your email...</h2>
       <p className="text-light-2 small-medium md:base-regular text-center">
         Please wait while we verify your email address.
