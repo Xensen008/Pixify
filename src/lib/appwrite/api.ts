@@ -1,4 +1,4 @@
-import { ID, ImageGravity, Query } from "appwrite";
+import { ID, ImageGravity, Query, Models } from "appwrite";
 
 import { appwriteConfig, account, databases, storage, avatars } from "./config";
 import { IUpdatePost, INewPost, INewUser, IUpdateUser } from "@/types";
@@ -15,7 +15,7 @@ export async function createUserAccount(user: INewUser) {
       user.email,
       user.password,
       user.name
-    );
+    ) as Models.User<Models.Preferences>;
 
     if (!newAccount) throw Error;
 
@@ -29,7 +29,7 @@ export async function createUserAccount(user: INewUser) {
       imageUrl: new URL(avatarUrl),
     });
 
-    return newUser;
+    return newUser as Models.Document;
   } catch (error) {
     console.log(error);
     return error;
@@ -741,5 +741,45 @@ export async function getInfiniteUsers({ pageParam }: { pageParam: string | null
     return users;
   } catch (error) {
     console.log(error);
+  }
+}
+
+// Add this new function
+export async function deleteUserAndSession(userId: string) {
+  try {
+    console.log("Starting cleanup for userId:", userId);
+
+    // First, find the user document using $id instead of accountId
+    const documents = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal("$id", userId)]
+    );
+    
+
+    if (documents.documents.length > 0) {
+      const userDoc = documents.documents[0];
+     
+
+      try {
+        // Delete the user document
+        const deleteResult = await databases.deleteDocument(
+          appwriteConfig.databaseId,
+          appwriteConfig.userCollectionId,
+          userDoc.$id
+        );
+        console.log("Delete result:", deleteResult);
+      } catch (deleteError) {
+        console.error("Error deleting user document:", deleteError);
+        throw deleteError;
+      }
+    } else {
+      console.log("No user document found for userId:", userId);
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error during cleanup:", error);
+    throw error;
   }
 }

@@ -5,16 +5,19 @@ import { account } from '@/lib/appwrite/config';
 import { useState, useEffect } from 'react';
 import Loader from '@/components/shared/Loader';
 import { useUserContext } from '@/context/AuthContext';
+import { deleteUserAndSession } from '@/lib/appwrite/api';
 
 const EmailVerification = () => {
   const [countdown, setCountdown] = useState(60);
   const [isResending, setIsResending] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isChecking, setIsChecking] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { setIsAuthenticated } = useUserContext();
   const email = location.state?.email;
+  const userId = location.state?.userId;
 
   useEffect(() => {
     if (!email) {
@@ -79,6 +82,40 @@ const EmailVerification = () => {
     }
   };
 
+  const handleWrongEmail = async () => {
+    if (!userId) return;
+    
+    setIsDeleting(true);
+    try {
+      // Delete everything from database first
+      const deleted = await deleteUserAndSession(userId);
+      
+      if (deleted) {
+        // Only after database cleanup, delete the session
+        await account.deleteSessions();
+        
+        toast({
+          title: "Account cleaned up",
+          description: "You can now create a new account with the correct email",
+        });
+        // Clear any stored credentials
+        localStorage.removeItem('tempPassword');
+        navigate('/sign-up');
+      } else {
+        throw new Error("Failed to cleanup account");
+      }
+    } catch (error) {
+      console.error("Error cleaning up account:", error);
+      toast({
+        title: "Error",
+        description: "Failed to process request. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   if (isChecking) {
     return (
       <div className="flex-center flex-col gap-5 p-8 max-w-md w-full bg-dark-2 rounded-xl">
@@ -114,10 +151,11 @@ const EmailVerification = () => {
 
       <p className="text-light-2 text-small-regular text-center">
         Wrong email? <button
-          onClick={() => navigate('/sign-up')}
-          className="text-primary-500 hover:underline"
+          onClick={handleWrongEmail}
+          disabled={isDeleting}
+          className="text-primary-500 hover:underline disabled:opacity-50"
         >
-          Try again
+          {isDeleting ? "Cleaning up..." : "Try again"}
         </button>
       </p>
     </div>

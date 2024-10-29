@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button"
 import { z } from "zod"
 import { Link, useNavigate } from "react-router-dom"
 import {
-  Form, FormControl, FormField, FormItem, FormLabel, FormMessage,
+  Form, FormControl, FormField, FormItem, FormLabel,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { SignUpValidation } from "@/lib/validation"
@@ -14,6 +14,7 @@ import { useToast } from "@/hooks/use-toast"
 import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutation"
 import { useUserContext } from "@/context/AuthContext"
 import { account } from '@/lib/appwrite/config'
+import { Models } from "appwrite"
 
 
 
@@ -39,8 +40,11 @@ const SignupForm = () => {
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof SignUpValidation>) {
     try {
-      const newUser = await createUserAccount(values);
-      if(!newUser) {
+      // Store password temporarily for potential cleanup
+      localStorage.setItem('tempPassword', values.password);
+
+      const newUser = await createUserAccount(values) as Models.Document;
+      if(!newUser || !('$id' in newUser)) {
         toast({title: "Sign up failed", description: "Please try again", variant: "destructive"})
         return;
       }
@@ -68,7 +72,11 @@ const SignupForm = () => {
       if(isLoggedIn){
         form.reset();
         navigate('/verify-email', { 
-          state: { email: values.email }
+          state: { 
+            email: values.email,
+            userId: newUser.$id,
+            isNewUser: true
+          }
         });
       }
     } catch (error) {
@@ -95,7 +103,6 @@ const SignupForm = () => {
                 <FormControl>
                   <Input type="text" className="shad-input" {...field} />
                 </FormControl>
-                <FormMessage className="text-xs" />
               </FormItem>
             )}
           />
@@ -108,7 +115,6 @@ const SignupForm = () => {
                 <FormControl>
                   <Input type="text" className="shad-input" {...field} />
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
@@ -119,9 +125,10 @@ const SignupForm = () => {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input type="email" className="shad-input" {...field} />
+                  <Input type="email" 
+                  placeholder="Enter working email for verification"
+                  className="shad-input" {...field} />
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
@@ -134,7 +141,6 @@ const SignupForm = () => {
                 <FormControl>
                   <Input type="password" className="shad-input" {...field} />
                 </FormControl>
-                <FormMessage />
               </FormItem>
             )}
           />
