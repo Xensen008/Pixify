@@ -21,7 +21,7 @@ const Home = () => {
     data: topCreators,
     isLoading: isCreatorsLoading,
     isError: isErrorCreators,
-  } = useGetUsers(10);
+  } = useGetUsers(1000);
 
   useEffect(() => {
     if (inView && hasNextPage) {

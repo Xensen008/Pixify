@@ -572,7 +572,7 @@ export async function getUsers(limit?: number) {
     const users = await databases.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
-      [Query.orderDesc("$createdAt"), Query.limit(limit || 100)]
+      [Query.orderDesc("$createdAt"), Query.limit(limit || 10000)]
     );
 
     if (!users) throw Error;
@@ -723,7 +723,7 @@ export async function searchUsers(searchTerm: string) {
 
 // Get users with pagination
 export async function getInfiniteUsers({ pageParam }: { pageParam: string | null }) {
-  const queries: any[] = [Query.orderDesc("$createdAt"), Query.limit(10)];
+  const queries: any[] = [Query.orderAsc("$createdAt"), Query.limit(12)];
 
   if (pageParam) {
     queries.push(Query.cursorAfter(pageParam));
