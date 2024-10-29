@@ -13,6 +13,7 @@ import Loader from "@/components/shared/Loader"
 import { useToast } from "@/hooks/use-toast"
 import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutation"
 import { useUserContext } from "@/context/AuthContext"
+import { account } from '@/lib/appwrite/config'
 
 
 
@@ -37,26 +38,41 @@ const SignupForm = () => {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof SignUpValidation>) {
-    const newUser = await createUserAccount(values);
-    console.log("New user created:", newUser)
-    if(!newUser) {
-      toast({title: "Sign up failed", description: "Please try again", variant: "destructive"})
-      return;
-    }
-    
-    const session = await signInAccount({email: values.email, password: values.password});   
+    try {
+      const newUser = await createUserAccount(values);
+      if(!newUser) {
+        toast({title: "Sign up failed", description: "Please try again", variant: "destructive"})
+        return;
+      }
+      
+      // Create session for the new user
+      const session = await signInAccount({email: values.email, password: values.password});   
+      if(!session) {
+        toast({title: "Sign in failed", description: "Please try again", variant: "destructive"});
+        return;
+      }
 
-    if(!session) {
-      toast({title: "Sign in failed", description: "Please try again", variant: "destructive"});
-      return;
-    }
+      // Send verification email
+      try {
+        await account.createVerification(`${window.location.origin}/verify`);
+        toast({
+          title: "Verification email sent",
+          description: "Please check your inbox to verify your email",
+          variant: "default"
+        });
+      } catch (error) {
+        console.error("Error sending verification:", error);
+      }
 
-    const isLoggedIn = await checkAuthUser();
-    if(isLoggedIn){
-      form.reset();
-      toast({title: "Account created successfully", description: "Please check your email for verification", variant: "default"})
-      navigate('/');
-    }else{
+      const isLoggedIn = await checkAuthUser();
+      if(isLoggedIn){
+        form.reset();
+        navigate('/verify-email', { 
+          state: { email: values.email }
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
       toast({title: "Sign up failed", description: "Please try again", variant: "destructive"});
     }
   }
