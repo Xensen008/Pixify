@@ -8,6 +8,8 @@ import RootLayout from './_root/RootLayout';
 import { AllUsers, CreatePost, EditPost, Explore, Home, PostDetails, Profile, Saved, UpdateProfile } from './_root/pages';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
+import CleanImages from './pages/CleanImages';
+
 const App = () => {
   return (
     <main className='flex h-screen'>
@@ -32,8 +34,7 @@ const App = () => {
           <Route path='/post/:id' element={<PostDetails/>}/>
           <Route path='/profile/:id/*' element={<Profile/>}/>
           <Route path='/update-profile/:id/' element={<UpdateProfile/>}/>
-          
-      
+          <Route path='/clean-images' element={<CleanImages/>}/>
         </Route>
       </Routes>
       <Toaster />

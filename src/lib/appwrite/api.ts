@@ -1,4 +1,4 @@
-import { ID, ImageGravity, Query, Models } from "appwrite";
+import { ID, Query, Models } from "appwrite";
 
 import { appwriteConfig, account, databases, storage, avatars } from "./config";
 import { IUpdatePost, INewPost, INewUser, IUpdateUser } from "@/types";
@@ -26,7 +26,7 @@ export async function createUserAccount(user: INewUser) {
       name: newAccount.name,
       email: newAccount.email,
       username: user.username,
-      imageUrl: new URL(avatarUrl),
+      imageUrl: avatarUrl,
     });
 
     return newUser as Models.Document;
@@ -41,7 +41,7 @@ export async function saveUserToDB(user: {
   accountId: string;
   email: string;
   name: string;
-  imageUrl: URL;
+  imageUrl: string;
   username?: string;
 }) {
   try {
@@ -125,7 +125,7 @@ export async function createPost(post: INewPost) {
 
     if (!uploadedFile) throw Error;
 
-    // Get file url
+    // Get direct file URL without transformations
     const fileUrl = getFilePreview(uploadedFile.$id);
     if (!fileUrl) {
       await deleteFile(uploadedFile.$id);
@@ -135,7 +135,7 @@ export async function createPost(post: INewPost) {
     // Convert tags into array
     const tags = post.tags?.replace(/ /g, "").split(",") || [];
 
-    // Create post
+    // Create post with direct URL
     const newPost = await databases.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.postCollectionId,
@@ -158,6 +158,7 @@ export async function createPost(post: INewPost) {
     return newPost;
   } catch (error) {
     console.log(error);
+    return null;
   }
 }
 
@@ -179,20 +180,11 @@ export async function uploadFile(file: File) {
 // ============================== GET FILE URL
 export function getFilePreview(fileId: string) {
   try {
-    const fileUrl = storage.getFilePreview(
-      appwriteConfig.storageId,
-      fileId,
-      2000,
-      2000,
-      ImageGravity.Top,  
-      100
-    );
-
-    if (!fileUrl) throw Error;
-
-    return fileUrl;
+    // Get the file view URL directly as a string
+    return storage.getFileView(appwriteConfig.storageId, fileId);
   } catch (error) {
     console.log(error);
+    return null;
   }
 }
 
@@ -279,14 +271,20 @@ export async function updatePost(post: IUpdatePost) {
       const uploadedFile = await uploadFile(post.file[0]);
       if (!uploadedFile) throw Error;
 
-      // Get new file url
+      // Get direct file URL without transformations
       const fileUrl = getFilePreview(uploadedFile.$id);
       if (!fileUrl) {
         await deleteFile(uploadedFile.$id);
         throw Error;
       }
 
-      image = { ...image, imageUrl: new URL(fileUrl), imageId: uploadedFile.$id };
+      image = { ...image, imageUrl: fileUrl, imageId: uploadedFile.$id };
+    } else {
+      // Always ensure we're using a direct URL without transformations
+      const directUrl = getFilePreview(image.imageId);
+      if (directUrl) {
+        image.imageUrl = directUrl;
+      }
     }
 
     // Convert tags into array
@@ -312,8 +310,6 @@ export async function updatePost(post: IUpdatePost) {
       if (hasFileToUpdate) {
         await deleteFile(image.imageId);
       }
-
-      // If no new file uploaded, just throw error
       throw Error;
     }
 
@@ -325,6 +321,7 @@ export async function updatePost(post: IUpdatePost) {
     return updatedPost;
   } catch (error) {
     console.log(error);
+    return null;
   }
 }
 
@@ -781,5 +778,91 @@ export async function deleteUserAndSession(userId: string) {
   } catch (error) {
     console.error("Error during cleanup:", error);
     throw error;
+  }
+}
+
+// ============================== CLEAN IMAGE URLS
+export async function cleanImageUrls() {
+  try {
+    // Get all posts
+    const posts = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      [Query.limit(100)]
+    );
+
+    let updatedCount = 0;
+
+    if (posts && posts.documents.length) {
+      // Update each post with direct image URL
+      for (const post of posts.documents) {
+        if (post.imageId) {
+          // Get direct URL without transformations
+          const directUrl = getFilePreview(post.imageId);
+          if (directUrl) {
+            await databases.updateDocument(
+              appwriteConfig.databaseId,
+              appwriteConfig.postCollectionId,
+              post.$id,
+              {
+                imageUrl: directUrl
+              }
+            );
+            updatedCount++;
+          }
+        }
+      }
+    }
+
+    // Get all users
+    const users = await databases.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.limit(100)]
+    );
+
+    if (users && users.documents.length) {
+      // Update each user's image URL
+      for (const user of users.documents) {
+        try {
+          let imageUrl;
+          if (user.imageId) {
+            // If user has an uploaded image, get direct URL
+            imageUrl = getFilePreview(user.imageId);
+          } else {
+            // If no uploaded image, generate avatar URL
+            imageUrl = avatars.getInitials(user.name);
+          }
+          
+          if (imageUrl) {
+            await databases.updateDocument(
+              appwriteConfig.databaseId,
+              appwriteConfig.userCollectionId,
+              user.$id,
+              {
+                imageUrl: imageUrl
+              }
+            );
+            updatedCount++;
+          }
+        } catch (err) {
+          console.log(`Error updating user ${user.$id}:`, err);
+          continue; // Skip to next user if there's an error
+        }
+      }
+    }
+
+    return { 
+      status: "ok", 
+      message: `Updated ${updatedCount} image URLs to use direct URLs`,
+      updatedCount 
+    };
+  } catch (error) {
+    console.log(error);
+    return { 
+      status: "error", 
+      message: "Failed to update image URLs",
+      error: String(error)
+    };
   }
 }

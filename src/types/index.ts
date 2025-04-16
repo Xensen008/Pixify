@@ -1,4 +1,3 @@
-
 export type IContextType={
   user:IUser,
   isLoading:boolean,
@@ -34,7 +33,7 @@ export type INavLink = {
     postId: string;
     caption: string;
     imageId: string;
-    imageUrl: URL;
+    imageUrl: URL | string;
     file: File[];
     location?: string;
     tags?: string;
